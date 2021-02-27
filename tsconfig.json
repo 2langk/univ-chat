@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",                          
+    "module": "CommonJS",                    
+    "lib": ["ES2015", "ES2016", "ES2017", "ES2018"],                     
+    "allowJs": true,
+    "outDir": "./build",                          
+    "rootDir": "./src",
+    "strict": true,         
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "typeRoots": ["./src/@types", "./node_modules/@types"]
+  }
+}
