@@ -34,9 +34,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
 				mission: nextLaunch.mission_name,
 				site: nextLaunch.launch_site.site_name_long,
 				timestamp: nextLaunch.launch_date_unix * 1000,
-				rocket: nextLaunch.rocket.rocket_name,
-			},
-		},
+				rocket: nextLaunch.rocket.rocket_name
+			}
+		}
 	};
 };
 
