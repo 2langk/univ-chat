@@ -20,6 +20,8 @@
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "react/jsx-filename-extension": [1, { "extensions": [".tsx", ".ts"] }],
+    "jsx-a11y/anchor-is-valid": "off",
+    "react/button-has-type": "off",
     "import/extensions": [
       "error",
       "ignorePackages",
