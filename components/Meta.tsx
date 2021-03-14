@@ -22,7 +22,7 @@ const Meta: React.FC<MetaProps> = ({ title, keywords, description }) => {
 Meta.defaultProps = {
 	title: 'Default title',
 	keywords: 'Default keywords',
-	description: 'Default description',
+	description: 'Default description'
 };
 
 export default Meta;
