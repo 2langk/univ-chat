@@ -73,10 +73,7 @@ const LoginPage: NextPage = () => {
 								password: values.password
 							})
 							.then((res) => {
-								if (res.status === 200) {
-									localStorage.setItem('jwt', res.data.token);
-									setUser(res.data.user, false);
-								}
+								setUser(res.data.user, false);
 							})
 							.catch(() => {
 								setIsError(true);
