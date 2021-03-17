@@ -35,17 +35,37 @@ export const login = catchAsync(async (req: Request, res: Response, next: NextFu
 	const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, {
 		expiresIn: process.env.JWT_EXPIRES_IN!,
 	});
+
+	user.password = undefined;
+	res.cookie('jwt', token, {
+		expires: new Date(Date.now() + 60 * 60 * 1000),
+		httpOnly: true,
+	});
 	res.status(200).json({
 		user,
-		token,
 	});
+});
+
+export const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+	if (!req.user) return next(new AppError('로그인이 필요합니다', 400));
+
+	res.cookie(
+		'jwt',
+		{ log: 'out' },
+		{
+			expires: new Date(Date.now() + 100),
+			httpOnly: true,
+		}
+	);
+
+	res.status(200).json({});
 });
 
 export const mustLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 	let token;
-	if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-		// eslint-disable-next-line prefer-destructuring
-		token = req.headers.authorization.split('Bearer ')[1] || req.cookies.jwt;
+
+	if (req.cookies.jwt) {
+		token = req.cookies.jwt;
 	}
 
 	if (!token) return next(new AppError('ERROR: Please Login', 400));
