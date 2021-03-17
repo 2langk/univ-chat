@@ -23,7 +23,7 @@ import {
 import Meta from '../components/Meta';
 
 const LoginPage: NextPage = () => {
-	const { data: user, mutate: setUser } = useSWR('/api/auth/me');
+	const { data: currentUser, mutate: setUser } = useSWR('/api/auth/me');
 	const [isError, setIsError] = useState(false);
 
 	const router = useRouter();
@@ -43,7 +43,7 @@ const LoginPage: NextPage = () => {
 		);
 	};
 
-	if (user) {
+	if (currentUser) {
 		router.push('/chatspace');
 	}
 
@@ -73,7 +73,7 @@ const LoginPage: NextPage = () => {
 								password: values.password
 							})
 							.then((res) => {
-								setUser(res.data.user, false);
+								setUser(res.data, false);
 							})
 							.catch(() => {
 								setIsError(true);

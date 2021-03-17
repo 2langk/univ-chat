@@ -13,29 +13,27 @@ import {
 	useToast
 } from '@chakra-ui/react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
 import useSWR from 'swr';
 
-const ExitChatModal = () => {
+const ExitChatModal: React.FC<any> = ({ currentRoom, setCurrentRoom }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const { mutate: setMyRooms } = useSWR('/api/chatRoom/my');
 
-	const { mutate: setUser } = useSWR('/api/auth/me');
-
-	const router = useRouter();
 	const toast = useToast();
 
-	const logout = (close: () => void) => {
-		axios.post('/api/auth/logout', {}).then(() => {
+	const exitRoom = (close: () => void) => {
+		axios.delete(`/api/chatRoom/${currentRoom.id}`, {}).then(() => {
 			toast({
-				title: `로그아웃 성공`,
+				title: `채팅방을 나갔습니다.`,
 				status: 'success',
 				isClosable: true
 			});
 
-			setUser('', false);
-			setTimeout(() => {
-				router.push('/login');
-			}, 1000);
+			setCurrentRoom.setCurrentRoom({ id: '', name: '', univiersity: '' });
+			setCurrentRoom.setCurrentRoomChats([]);
+			setCurrentRoom.setCurrentRoomUsers([]);
+
+			setMyRooms('', true);
 		});
 	};
 	return (
@@ -50,7 +48,7 @@ const ExitChatModal = () => {
 					<ModalBody>정말로 채팅방을 나가겠습니까?</ModalBody>
 
 					<ModalFooter>
-						<Button colorScheme="blue" mr={3} onClick={() => logout(onClose)}>
+						<Button colorScheme="blue" mr={3} onClick={() => exitRoom(onClose)}>
 							네
 						</Button>
 						<Button variant="ghost" onClick={onClose}>

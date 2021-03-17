@@ -10,7 +10,7 @@ const ChatMessageCard: React.VFC<any> = ({ roomChat }) => {
 						{roomChat.user.name}
 					</Text>
 					<Text fontWeight="medium" fontSize="xs" mx="2">
-						11:20
+						{roomChat.createdAt}
 					</Text>
 				</HStack>
 				<Box>

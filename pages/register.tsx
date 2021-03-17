@@ -23,7 +23,7 @@ import {
 import Meta from '../components/Meta';
 
 const RegisterPage: NextPage = () => {
-	const { data: user } = useSWR('/api/auth/me');
+	const { data: currentUser } = useSWR('/api/auth/me');
 	const [isError, setIsError] = useState(false);
 
 	const router = useRouter();
@@ -43,7 +43,7 @@ const RegisterPage: NextPage = () => {
 		);
 	};
 
-	if (user) {
+	if (currentUser) {
 		router.push('/chatspace');
 	}
 	return (
@@ -65,7 +65,7 @@ const RegisterPage: NextPage = () => {
 					validationSchema={Yup.object({
 						email: Yup.string().email().required('이메일을 입력하세요.'),
 						password: Yup.string().required('비밀번호를 입력하세요'),
-						passwordCheck: Yup.string().oneOf([Yup.ref('password'), null], '비밀번호 다릅니다.')
+						passwordCheck: Yup.string().oneOf([Yup.ref('password'), null], '비밀번호를 확인하세요.')
 					})}
 					onSubmit={(values, { setSubmitting, resetForm }) => {
 						setSubmitting(true);
@@ -96,7 +96,6 @@ const RegisterPage: NextPage = () => {
 						<TextInput label="이름" name="name" id="name" type="text" placeholder="이름" />
 						<TextInput label="Email" name="email" id="email" type="text" placeholder="email@email.com" />
 						<TextInput label="대학교" name="university" id="university" type="text" placeholder="이름" />
-
 						<TextInput
 							label="Password"
 							name="password"

@@ -12,7 +12,8 @@ import {
 	Radio,
 	Textarea,
 	useToast,
-	IconButton
+	IconButton,
+	Box
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
@@ -46,6 +47,7 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 		socket.off('messageFromServer');
 		socket.off('roomInfo');
 		socket.off('newUserJoinFromServer');
+		socket.off('userLeaveFromServer');
 
 		socket.on('roomInfo', ({ roomUsers, roomChats }) => {
 			setCurrentRoomUsers(roomUsers);
@@ -54,12 +56,12 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 		});
 
 		socket.on('messageFromServer', ({ newMessage }) => {
-			if (newMessage.chatRoom === currentRoom.id) {
+			if (newMessage.chatRoom.id === currentRoom.id) {
 				setCurrentRoomChats((prev: any) => [...prev, newMessage]);
 				chatBoxRef.current!.scrollTop = chatBoxRef.current!.scrollHeight;
 			} else {
 				toast({
-					title: `${newMessage.chatRoom}에 새로운 메시지가 있습니다`,
+					title: `${newMessage.chatRoom.name}에 새로운 메시지가 있습니다`,
 					status: 'info',
 					duration: 60 * 1000,
 					isClosable: true
@@ -71,14 +73,26 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 			if (roomId === currentRoom.id) {
 				setCurrentRoomUsers((prev: any) => [...prev, { user }]);
 				toast({
-					title: `새로운 유저가 입장했습니다`,
+					title: `새로운 유저 ${user.name}가 입장했습니다`,
 					status: 'info',
 					duration: 60 * 1000,
 					isClosable: true
 				});
 			}
 		});
-	}, [currentRoom, toast]);
+
+		socket.on('userLeaveFromServer', ({ roomId, user }) => {
+			if (roomId === currentRoom.id && user.id !== currentUser.user.id) {
+				setCurrentRoomUsers((prev: any) => prev.filter((item: any) => item.user.id !== user.id));
+				toast({
+					title: `유저 ${user.name}가 방을 나갔습니다`,
+					status: 'warning',
+					duration: 60 * 1000,
+					isClosable: true
+				});
+			}
+		});
+	}, [currentRoom, toast, currentUser]);
 
 	useEffect(() => {
 		socket.emit('userLogin', { myRooms: myRooms.chatRooms });
@@ -166,7 +180,7 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 
 				{/* 채팅방 검색 리스트 */}
 				<VStack w="100%" alignItems="flex-start" spacing="4" overflowY="scroll">
-					{allRooms &&
+					{allRooms.chatRooms &&
 						allRooms.chatRooms.map((room: any) => (
 							<ChatRoomCard
 								key={room.id}
@@ -205,7 +219,7 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 
 				{/* 참여중인 채팅방 리스트 */}
 				<VStack w="100%" alignItems="flex-start" spacing="4" overflowY="scroll">
-					{myRooms &&
+					{myRooms.chatRooms &&
 						myRooms.chatRooms.map((room: any) => (
 							<MyRoomCard
 								id={room.id}
@@ -222,31 +236,35 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 			{/* -- 채팅화면 */}
 			{currentRoom?.id ? (
 				<Flex direction="column" w="100%" h="100vh" bgColor="gray.100" p="4" justify="space-between">
-					<Flex justify="space-between" w="100%">
-						<Heading as="h3" size="lg" m="0" p="0">
-							{currentRoom.name}
-						</Heading>
-						<ExitChatModal />
-					</Flex>
+					<Box>
+						<Flex justify="space-between" w="100%">
+							<Heading as="h3" size="lg" m="0" p="0">
+								{currentRoom.name}
+							</Heading>
+							<ExitChatModal
+								currentRoom={currentRoom}
+								setCurrentRoom={{ setCurrentRoomChats, setCurrentRoomUsers, setCurrentRoom }}
+							/>
+						</Flex>
 
-					{/* 채팅방의 메시지 리스트 */}
-					<VStack
-						mt="4"
-						p="4"
-						spacing="4"
-						alignItems="flex-start"
-						overflowY="scroll"
-						ref={chatBoxRef}
-						bgColor="linkedin.100"
-					>
-						{currentRoomChats.map((roomChat: any) => (
-							<ChatMessageCard roomChat={roomChat} />
-						))}
-					</VStack>
-
+						{/* 채팅방의 메시지 리스트 */}
+						<VStack
+							mt="4"
+							p="8"
+							spacing="4"
+							alignItems="flex-start"
+							overflowY="scroll"
+							ref={chatBoxRef}
+							bgColor="linkedin.100"
+						>
+							{currentRoomChats.map((roomChat: any) => (
+								<ChatMessageCard roomChat={roomChat} />
+							))}
+						</VStack>
+					</Box>
 					{/* 채팅 입력창 및 전송버튼 */}
 
-					<Flex w="100%" alignItems="center" mt="4">
+					<Flex alignItems="center" mt="4" mb="4">
 						<Textarea
 							placeholder="메시지 입력하세요. 전송 = 'ctrl + Enter'"
 							resize="none"
@@ -254,6 +272,7 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 							borderColor="gray.300"
 							ref={chatInputRef}
 							onKeyPress={sendMessage}
+							w="100%"
 						/>
 						<Button type="submit" colorScheme="blue" h="20" p="4" onClick={sendMessage}>
 							Button
@@ -273,12 +292,13 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 				</Heading>
 
 				<VStack overflowY="scroll" h="60%" w="100%" alignItems="flex-start">
-					{currentRoomUsers.map((roomUser: any) => (
-						<Flex alignItems="center" cursor="pointer" _hover={{ bgColor: 'gray.600' }}>
-							<Avatar mx="4" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-							<Text mx="2">{roomUser.user.name}</Text>
-						</Flex>
-					))}
+					{currentRoomUsers &&
+						currentRoomUsers.map((roomUser: any) => (
+							<Flex alignItems="center" cursor="pointer" _hover={{ bgColor: 'gray.600' }}>
+								<Avatar mx="4" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
+								<Text mx="2">{roomUser.user.name}</Text>
+							</Flex>
+						))}
 				</VStack>
 
 				<Flex direction="column" position="absolute" bottom="0" mb="5">
