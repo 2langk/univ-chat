@@ -15,7 +15,9 @@ const MyRoomCard: React.VFC<any> = ({ id, name, university, isCurrentRoom, joinC
 			<HStack>
 				<ChatIcon w="12" h="12" mr="4" />
 				<Flex direction="column">
-					<Heading size="sm">{name}</Heading>
+					<Heading size="sm" whiteSpace="nowrap">
+						{name}
+					</Heading>
 					<Text>학교: {university}</Text>
 				</Flex>
 			</HStack>

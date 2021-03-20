@@ -25,6 +25,16 @@ const ChatRoomCard: React.VFC<any> = ({ id, name, category, description, univers
 	const joinChatRoom = useCallback(
 		(e, onClose) => {
 			e.preventDefault();
+			if (!['all', currentUser.user.university].includes(university)) {
+				toast({
+					title: `입장가능한 채팅방이 아닙니다!`,
+					status: 'warning',
+					duration: 3000,
+					isClosable: true
+				});
+
+				return;
+			}
 			socket.emit('newUserJoin', { roomId: id, user: currentUser.user });
 			setMyRooms(myRooms, true);
 			toast({
@@ -35,7 +45,7 @@ const ChatRoomCard: React.VFC<any> = ({ id, name, category, description, univers
 			});
 			onClose();
 		},
-		[id, myRooms, setMyRooms, toast, currentUser, socket]
+		[id, myRooms, setMyRooms, toast, currentUser, socket, university]
 	);
 
 	return (
@@ -46,7 +56,9 @@ const ChatRoomCard: React.VFC<any> = ({ id, name, category, description, univers
 						<Flex alignItems="center" p="2" w="100%" cursor="pointer" _hover={{ bgColor: 'gray.600' }}>
 							<ChatIcon w="12" h="12" mr="4" />
 							<Flex direction="column">
-								<Heading size="sm">{name}</Heading>
+								<Heading size="sm" whiteSpace="nowrap">
+									{name}
+								</Heading>
 								<Text>학교: {university}</Text>
 							</Flex>
 						</Flex>

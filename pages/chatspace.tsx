@@ -27,6 +27,7 @@ import Meta from '../components/Meta';
 import ChatMessageCard from '../components/ChatMessageCard';
 import LogoutModal from '../components/LogoutModal';
 import ExitChatModal from '../components/ExitChatModal';
+import ChatRoomUserCard from '../components/ChatRoomUserCard';
 
 const socket: Socket = io('http://localhost:4000');
 
@@ -235,33 +236,32 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 
 			{/* -- 채팅화면 */}
 			{currentRoom?.id ? (
-				<Flex direction="column" w="100%" h="100vh" bgColor="gray.100" p="4" justify="space-between">
-					<Box>
-						<Flex justify="space-between" w="100%">
-							<Heading as="h3" size="lg" m="0" p="0">
-								{currentRoom.name}
-							</Heading>
-							<ExitChatModal
-								currentRoom={currentRoom}
-								setCurrentRoom={{ setCurrentRoomChats, setCurrentRoomUsers, setCurrentRoom }}
-							/>
-						</Flex>
+				<Flex direction="column" w="100%" h="100vh" bgColor="gray.100" p="4" justify="space-between" overFlowY="scroll">
+					<Flex justify="space-between" w="100%">
+						<Heading as="h3" size="lg" m="0" p="0">
+							{currentRoom.name}
+						</Heading>
+						<ExitChatModal
+							currentRoom={currentRoom}
+							setCurrentRoom={{ setCurrentRoomChats, setCurrentRoomUsers, setCurrentRoom }}
+						/>
+					</Flex>
 
-						{/* 채팅방의 메시지 리스트 */}
-						<VStack
-							mt="4"
-							p="8"
-							spacing="4"
-							alignItems="flex-start"
-							overflowY="scroll"
-							ref={chatBoxRef}
-							bgColor="linkedin.100"
-						>
-							{currentRoomChats.map((roomChat: any) => (
-								<ChatMessageCard roomChat={roomChat} />
-							))}
-						</VStack>
-					</Box>
+					{/* 채팅방의 메시지 리스트 */}
+					<VStack
+						mt="4"
+						h="100%"
+						p="8"
+						spacing="4"
+						alignItems="flex-start"
+						overflowY="scroll"
+						ref={chatBoxRef}
+						bgColor="linkedin.100"
+					>
+						{currentRoomChats.map((roomChat: any) => (
+							<ChatMessageCard key={roomChat.id} roomChat={roomChat} />
+						))}
+					</VStack>
 					{/* 채팅 입력창 및 전송버튼 */}
 
 					<Flex alignItems="center" mt="4" mb="4">
@@ -293,12 +293,7 @@ const ChatPage: NextPage<any> = ({ initAllRooms, initMyRooms }) => {
 
 				<VStack overflowY="scroll" h="60%" w="100%" alignItems="flex-start">
 					{currentRoomUsers &&
-						currentRoomUsers.map((roomUser: any) => (
-							<Flex alignItems="center" cursor="pointer" _hover={{ bgColor: 'gray.600' }}>
-								<Avatar mx="4" name="Dan Abrahmov" src="https://bit.ly/dan-abramov" />
-								<Text mx="2">{roomUser.user.name}</Text>
-							</Flex>
-						))}
+						currentRoomUsers.map((roomUser: any) => <ChatRoomUserCard key={roomUser.user.id} roomUser={roomUser} />)}
 				</VStack>
 
 				<Flex direction="column" position="absolute" bottom="0" mb="5">
