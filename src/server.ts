@@ -63,8 +63,10 @@ io.on('connection', (socket: Socket) => {
 	});
 
 	socket.on('newUserJoin', async ({ roomId, user }) => {
-		await joinChatRoom(roomId, user);
-		io.to(roomId).emit('newUserJoinFromServer', { roomId, user });
+		const result = await joinChatRoom(roomId, user);
+		if (result) {
+			io.to(roomId).emit('newUserJoinFromServer', { roomId, user });
+		}
 	});
 });
 

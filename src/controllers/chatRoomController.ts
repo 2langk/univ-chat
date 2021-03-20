@@ -4,7 +4,6 @@ import AppError from '../utils/AppError';
 import ChatRoom from '../models/ChatRoom';
 import ChatRoomUser from '../models/ChatRoomUser';
 import Chat from '../models/Chat';
-import User from '../models/User';
 import io from '../server';
 
 export const createChatRoom = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -57,7 +56,11 @@ export const getMyChatRooms = catchAsync(async (req: Request, res: Response, nex
 });
 
 export const joinChatRoom = async (roomId: any, user: any) => {
+	const chatRoom = await ChatRoom.findById(roomId);
+
+	if (!chatRoom || !['all', user.university].includes(chatRoom.university)) return false;
 	await ChatRoomUser.create({ chatRoom: roomId, user: user.id });
+	return true;
 };
 
 export const getChatRoomInfo = async (roomId: string) => {

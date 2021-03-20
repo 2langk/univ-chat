@@ -28,6 +28,8 @@ const chatSchema = new mongoose.Schema<ChatDoc, ChatModel>(
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 );
 
