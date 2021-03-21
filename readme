@@ -1,5 +1,6 @@
-###npx create-next-app 기반   
+# nextjs 기반(create-next-app) 채팅서비스
 
-###eslint, prettier 적용    
-
-###typescript 적용.
+# master 브랜치 - 통합 마스터 브랜치
+# develop 브랜치 - 프론트 마스터 브랜치
+# work 브랜치 - 프론트 작업 브랜치
+# server 브랜치 - 웹소켓 + api 서버 브랜치
